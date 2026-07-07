@@ -4,20 +4,24 @@
 #include "player.hpp"
 #include "map.hpp"
 
+bool threeD = 1;
+
 int main()
 {
     constexpr int screenWidth = 1920;
     constexpr int screenHeight = 1080;
-    constexpr int speed = 200;
-    constexpr int fov = 90;
+    constexpr int speed = 100;
+    constexpr int fov = 45;
+    constexpr int numRays = 320;
+
 
     Player player;
-    player.pos = {screenWidth/2, screenHeight/2};
+    player.pos = {200, 200};
     player.size = 10;
 
-    Map mainMap(40.0f);
+    Map mainMap(100.0f);
 
-    std::vector<RAY> rays = createRays(100,300,fov, &player);
+    std::vector<RAY> rays = createRays(numRays, fov, &player, &mainMap);
 
     InitWindow(screenWidth, screenHeight, "Ray-caster");
     SetTargetFPS(60);
@@ -25,6 +29,8 @@ int main()
 
     while (!WindowShouldClose())
     {
+    if (IsKeyPressed(KEY_TAB)) threeD = !threeD;
+        
         float dt = GetFrameTime();
         
         player.update(dt, speed);
@@ -33,10 +39,17 @@ int main()
         BeginDrawing();
             ClearBackground(RAYWHITE);
 
-            mainMap.drawMap();
-        
-            processRays(rays, PURPLE);
-            player.render();
+            if (!threeD)
+            {
+                mainMap.drawMap();
+                processRays2D(rays, PURPLE);
+                player.render();
+            }
+
+            if (threeD)
+            {
+                processRays3D(rays, BLUE, numRays);
+            }
 
             DrawFPS(10,10);
 
