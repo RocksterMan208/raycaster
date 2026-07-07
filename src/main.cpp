@@ -2,6 +2,7 @@
 
 #include "raylib.h"
 #include "player.hpp"
+#include "map.hpp"
 
 int main()
 {
@@ -12,8 +13,11 @@ int main()
 
     Player player;
     player.pos = {screenWidth/2, screenHeight/2};
+    player.size = 10;
 
-    std::vector<RAY> rays = createRays(30,300,fov, &player);
+    Map mainMap(40.0f);
+
+    std::vector<RAY> rays = createRays(100,300,fov, &player);
 
     InitWindow(screenWidth, screenHeight, "Ray-caster");
     SetTargetFPS(60);
@@ -28,8 +32,10 @@ int main()
 
         BeginDrawing();
             ClearBackground(RAYWHITE);
+
+            mainMap.drawMap();
         
-            renderRays(rays, PURPLE);
+            processRays(rays, PURPLE);
             player.render();
 
             DrawFPS(10,10);

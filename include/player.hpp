@@ -3,6 +3,8 @@
 #include "raymath.h"
 #include <vector>
 
+// Creating the player struct which will be the basis of the ray-caster
+
 struct Player
 {
     private:
@@ -38,6 +40,8 @@ struct Player
         DrawCircle(pos.x, pos.y, size, color);
     }
 };
+
+// Creating a struct which handles the generating and processing of rays using the player as reference.
 
 struct RAY
 {
@@ -84,7 +88,7 @@ std::vector<RAY> createRays(int numRays, int rayLength, int fov, Player* player)
     return rayStruct;
 }
 
-inline void renderRays(std::vector<RAY> rays, Color rayColor)
+inline void processRays(std::vector<RAY> rays, Color rayColor)
 {
     for (auto& r : rays)
     {
