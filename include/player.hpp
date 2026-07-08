@@ -3,8 +3,7 @@
 #include "raymath.h"
 #include <vector>
 #include "map.hpp"
-
-// Creating the player struct which will be the basis of the ray-caster
+#include <cmath>
 
 struct Player
 {
@@ -36,20 +35,25 @@ struct Player
 
         if (IsKeyDown(KEY_W))
         {
-            direction += forward * speed * dt;
+            direction += forward * speed * 1/60;
         }
         if (IsKeyDown(KEY_S))
         {
-            direction -= forward * speed * dt;
+            direction -= forward * speed * 1/60;
         }
         if (IsKeyDown(KEY_A))
         {
-            direction -= right * speed * dt;
+            direction -= right * speed * 1/60;
         }
         if (IsKeyDown(KEY_D))
         {
-            direction += right * speed * dt;
+            direction += right * speed * 1/60;
         }
+
+        if (IsKeyDown(KEY_UP)) pos.y -= speed * dt;
+        if (IsKeyDown(KEY_DOWN)) pos.y += speed * dt;
+        if (IsKeyDown(KEY_RIGHT)) pos.x += speed * dt;
+        if (IsKeyDown(KEY_LEFT)) pos.x -= speed * dt;
 
         pos += direction * speed * dt;
     }
@@ -59,8 +63,6 @@ struct Player
         DrawCircle(pos.x, pos.y, size, color);
     }
 };
-
-// Creating a struct which handles the generating and processing of rays using the player as reference.
 
 struct RAY
 {
@@ -91,20 +93,81 @@ struct RAY
     {
         rayPos = player->pos;
         angle = player->yaw*DEG2RAD;
-        direction = {cos(angle+offset), sin(angle+offset)};
     }
 
     void cast()
     {
-        rayPos = player->pos;
-        
-        while (!map->isWall(rayPos.x / map->size, rayPos.y / map->size))
+        direction = {cos(angle+offset), sin(angle+offset)};
+
+        Vector2 mapCheck =
         {
-            rayPos.x += direction.x * stepSize;
-            rayPos.y += direction.y * stepSize;
+            (int)(player->pos.x / map->size),
+            (int)(player->pos.y / map->size)
+        };
+        
+        Vector2 step =
+        {
+            direction.x < 0 ? -1 : 1,
+            direction.y < 0 ? -1 : 1
+        };
+
+        Vector2 distancePerGridSquare =
+        {
+            direction.x == 0 ? INFINITY : sqrt(1 + (direction.y / direction.x) * (direction.y / direction.x)),
+            direction.y == 0 ? INFINITY : sqrt(1 + (direction.x / direction.y) * (direction.x / direction.y))
+        };
+
+        Vector2 playerMapPos =
+        {
+            player->pos.x / map->size,
+            player->pos.y / map->size
+        };
+
+        Vector2 fraction =
+        {
+            playerMapPos.x - mapCheck.x,
+            playerMapPos.y - mapCheck.y
+        };
+
+        Vector2 distanceToNextGridLine;
+
+        if(direction.x < 0)
+            distanceToNextGridLine.x = fraction.x * distancePerGridSquare.x;
+        else
+            distanceToNextGridLine.x = (1 - fraction.x) * distancePerGridSquare.x;
+
+
+        if(direction.y < 0)
+            distanceToNextGridLine.y = fraction.y * distancePerGridSquare.y;
+        else
+            distanceToNextGridLine.y = (1 - fraction.y) * distancePerGridSquare.y;
+
+        for(int i = 0; i < 50; i++)
+        {
+            if(distanceToNextGridLine.x < distanceToNextGridLine.y)
+            {
+                mapCheck.x += step.x;
+                hitDistance = distanceToNextGridLine.x;
+                distanceToNextGridLine.x += distancePerGridSquare.x;
+            }
+            else
+            {
+                mapCheck.y += step.y;
+                hitDistance = distanceToNextGridLine.y;
+                distanceToNextGridLine.y += distancePerGridSquare.y;
+            }
+
+            if(map->isWall((int)mapCheck.x, (int)mapCheck.y))
+                break;
         }
 
-        hitDistance = Vector2Distance(player->pos, rayPos);
+        hitDistance *= map->size;
+
+        rayPos =
+        {
+            player->pos.x + direction.x * hitDistance,
+            player->pos.y + direction.y * hitDistance
+        };
     }
 
     void render2D(Color rayColor)
@@ -116,7 +179,7 @@ struct RAY
     {
         float correctedDistance = hitDistance * cos(offset);
 
-        float wallHeight = 20000 / correctedDistance;
+        float wallHeight = 60000 / correctedDistance;
 
         float wallTop = (GetScreenHeight() / 2) - (wallHeight / 2);
         float wallBottom = (GetScreenHeight() / 2) + (wallHeight / 2);
@@ -143,7 +206,7 @@ std::vector<RAY> createRays(int numRays, int fov, Player* player, Map* map)
     return rayStruct;
 }
 
-inline void processRays2D(std::vector<RAY> rays, Color rayColor)
+inline void processRays2D(std::vector<RAY>& rays, Color rayColor)
 {
     for (auto& r : rays)
     {
@@ -153,12 +216,12 @@ inline void processRays2D(std::vector<RAY> rays, Color rayColor)
     }
 }
 
-inline void processRays3D(std::vector<RAY> rays, Color rayColor, int numRays)
+inline void processRays3D(std::vector<RAY>& rays, Color mapColor, int numRays)
 {
     for (auto& r : rays)
     {
         r.update();
         r.cast();
-        r.render3D(rayColor, numRays);
+        r.render3D(mapColor, numRays);
     }
 }

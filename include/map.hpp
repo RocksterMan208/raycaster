@@ -8,6 +8,7 @@
 class Map
 {
     private:
+    Color col;
 
     public:
     std::vector<std::vector<int>> tiles =
@@ -19,7 +20,7 @@ class Map
         {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
         {1, 0, 0, 0, 1, 0, 0, 0, 0, 1},
         {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 0, 1, 0, 0, 0, 0, 0, 0, 1},
+        {1, 0, 1, 0, 0, 0, 1, 0, 0, 1},
         {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
     };
@@ -27,10 +28,11 @@ class Map
     Vector2 sizeV;
     float size;
 
-    Map(float tileSize)
+    Map(float tileSize, Color mapColor)
     {
         sizeV = (Vector2){tileSize, tileSize};
         size = tileSize;
+        col = mapColor;
     }
 
     void drawMap()
@@ -40,7 +42,7 @@ class Map
             for (int x = 0; x < tiles[y].size(); x++)
             {
                 if (tiles[y][x] == 1)
-                    DrawRectangleV({x * size, y * size}, sizeV, BLUE);
+                    DrawRectangleV({x * size, y * size}, sizeV, col);
             }
         }
     }

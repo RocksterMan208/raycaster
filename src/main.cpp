@@ -4,7 +4,8 @@
 #include "player.hpp"
 #include "map.hpp"
 
-bool threeD = 1;
+int threeD = 1;
+int mouseLock = 1;
 
 int main()
 {
@@ -14,12 +15,14 @@ int main()
     constexpr int fov = 45;
     constexpr int numRays = 320;
 
+    constexpr float playerSens = 0.5f;
+
 
     Player player;
     player.pos = {200, 200};
     player.size = 10;
 
-    Map mainMap(100.0f);
+    Map mainMap(100.0f, DARKBLUE);
 
     std::vector<RAY> rays = createRays(numRays, fov, &player, &mainMap);
 
@@ -30,11 +33,12 @@ int main()
     while (!WindowShouldClose())
     {
     if (IsKeyPressed(KEY_TAB)) threeD = !threeD;
+    if (IsKeyPressed(KEY_M)) mouseLock = !mouseLock;
         
         float dt = GetFrameTime();
         
+        player.camera(playerSens);
         player.update(dt, speed);
-        player.camera(0.5f);
 
         BeginDrawing();
             ClearBackground(RAYWHITE);
@@ -45,11 +49,8 @@ int main()
                 processRays2D(rays, PURPLE);
                 player.render();
             }
+            else processRays3D(rays, DARKBLUE, numRays);
 
-            if (threeD)
-            {
-                processRays3D(rays, BLUE, numRays);
-            }
 
             DrawFPS(10,10);
 
