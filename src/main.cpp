@@ -23,7 +23,7 @@ int main()
     player.pos = {200, 200};
     player.size = 10;
 
-    Map mainMap(100.0f, DARKBLUE);
+    Map mainMap(100.0f, DARKBLUE, "./resources/map.csv");
 
     std::vector<RAY> rays = createRays(numRays, fov, &player, &mainMap);
 

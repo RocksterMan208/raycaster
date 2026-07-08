@@ -4,6 +4,8 @@
 #include "raylib.h"
 #include "raymath.h"
 #include <vector>
+#include <fstream>
+#include <sstream>
 
 class Map
 {
@@ -11,28 +13,18 @@ class Map
     Color col;
 
     public:
-    std::vector<std::vector<int>> tiles =
-    {
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-        {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 1, 1, 1, 0, 1, 1, 1, 0, 1},
-        {1, 0, 1, 0, 0, 0, 0, 1, 0, 1},
-        {1, 0, 1, 1, 0, 1, 0, 1, 0, 1},
-        {1, 0, 0, 0, 0, 1, 0, 1, 0, 1},
-        {1, 0, 1, 1, 0, 1, 0, 1, 0, 1},
-        {1, 0, 0, 1, 0, 1, 0, 1, 0, 1},
-        {1, 0, 0, 1, 0, 1, 0, 0, 0, 1},
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
-    };
+    std::vector<std::vector<int>> tiles;
 
     Vector2 sizeV;
     float size;
 
-    Map(float tileSize, Color mapColor)
+    Map(float tileSize, Color mapColor, const std::string& path)
     {
         sizeV = (Vector2){tileSize, tileSize};
         size = tileSize;
         col = mapColor;
+        
+        loadMap(path);
     }
 
     void drawMap()
@@ -54,4 +46,24 @@ class Map
 
     return tiles[y][x] == 1;
     }
+
+    void loadMap(const std::string& path)
+{
+    std::ifstream file(path);
+    std::string line;
+
+    while(std::getline(file, line))
+    {
+        std::vector<int> row;
+        std::stringstream ss(line);
+        std::string value;
+
+        while(std::getline(ss, value, ','))
+        {
+            row.push_back(std::stoi(value));
+        }
+
+        tiles.push_back(row);
+    }
+}
 };
