@@ -3,6 +3,7 @@
 #include "raylib.h"
 #include "player.hpp"
 #include "map.hpp"
+#include "ray.hpp"
 
 int threeD = 1;
 int mouseLock = 1;
@@ -29,6 +30,7 @@ int main()
     InitWindow(screenWidth, screenHeight, "Ray-caster");
     SetTargetFPS(60);
     DisableCursor();
+;
 
     while (!WindowShouldClose())
     {
@@ -38,7 +40,7 @@ int main()
         float dt = GetFrameTime();
         
         player.camera(playerSens);
-        player.update(dt, speed);
+        player.update(dt, speed, &mainMap);
 
         BeginDrawing();
             ClearBackground(RAYWHITE);
