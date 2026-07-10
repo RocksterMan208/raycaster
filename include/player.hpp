@@ -68,6 +68,7 @@ struct Player
 
         if (!map->isWall(pos.x / map->size, newPos.y / map->size)) pos.y = newPos.y;
     }
+
     
     void render()
     {

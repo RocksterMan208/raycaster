@@ -14,7 +14,7 @@ int main()
     constexpr int screenHeight = 1080;
     constexpr int speed = 100;
     constexpr int fov = 45;
-    constexpr int numRays = 320;
+    constexpr int numRays = 640;
 
     constexpr float playerSens = 0.5f;
 
@@ -30,7 +30,12 @@ int main()
     InitWindow(screenWidth, screenHeight, "Ray-caster");
     SetTargetFPS(60);
     DisableCursor();
-;
+
+    Camera2D cam = {0};
+    cam.target = player.pos;
+    cam.offset = {screenWidth/2, screenHeight/2};
+    cam.zoom = 1.0f;
+    cam.rotation = 0.0f;
 
     while (!WindowShouldClose())
     {
@@ -47,14 +52,22 @@ int main()
 
             if (!threeD)
             {
-                mainMap.drawMap();
-                processRays2D(rays, PURPLE);
-                player.render();
+                BeginMode2D(cam);
+                
+                    mainMap.drawMap();
+                    processRays2D(rays, PURPLE);
+                    player.render();
+                    cam.target = player.pos;
+
+                EndMode2D();
             }
-            else processRays3D(rays, DARKBLUE, numRays);
+            else 
+            {
+                DrawRectangleV({0,screenHeight/2}, {screenWidth, screenHeight/2}, GRAY);
+                processRays3D(rays, DARKBLUE, numRays);
+            }
 
-
-            DrawFPS(10,10);
+            //DrawFPS(10,10);
 
         EndDrawing();
     }

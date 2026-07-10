@@ -121,7 +121,7 @@ struct RAY
     {
         float correctedDistance = hitDistance * cos(offset);
 
-        float wallHeight = 60000 / correctedDistance;
+        float wallHeight = 100000 / correctedDistance;
 
         float wallTop = (GetScreenHeight() / 2) - (wallHeight / 2);
         float wallBottom = (GetScreenHeight() / 2) + (wallHeight / 2);
